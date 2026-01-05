@@ -29,7 +29,7 @@ docs
 # Development files
 .eslintrc.json
 .prettierrc
-tsconfig.json
+# tsconfig.json
 
 # Local config (may have different settings)
 config.json

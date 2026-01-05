@@ -15,7 +15,7 @@ import { PerformanceMonitor } from '../utils/PerformanceMonitor.js';
 import { InputValidator } from '../utils/InputValidator.js';
 
 const configPath = './config.json';
-const config = existsSync(configPath) 
+const config = existsSync(configPath)
   ? JSON.parse(readFileSync(configPath, 'utf-8'))
   : { headless: false };
 
@@ -605,18 +605,18 @@ export class EnhancedMCPServerFixed {
   private requiresInitialization(toolName: string): boolean {
     const toolsRequiringInit = [
       'write', 'append', 'insert', 'replace', 'play', 'pause', 'stop',
-      'clear', 'get_pattern', 'analyze', 'analyze_spectrum', 'analyze_rhythm',
+      'clear', 'analyze', 'analyze_spectrum', 'analyze_rhythm',
       'transpose', 'reverse', 'stretch', 'humanize', 'generate_variation',
       'add_effect', 'add_swing', 'set_tempo', 'save', 'undo', 'redo',
       'validate_pattern_runtime'
     ];
-    
+
     const toolsRequiringWrite = [
       'generate_pattern', 'generate_drums', 'generate_bassline', 'generate_melody',
       'generate_chord_progression', 'generate_euclidean', 'generate_polyrhythm',
       'generate_fill'
     ];
-    
+
     return toolsRequiringInit.includes(toolName) || toolsRequiringWrite.includes(toolName);
   }
 
@@ -626,7 +626,7 @@ export class EnhancedMCPServerFixed {
       const lastPattern = Array.from(this.generatedPatterns.values()).pop();
       return lastPattern || '';
     }
-    
+
     try {
       return await this.controller.getCurrentPattern();
     } catch (e) {
@@ -641,7 +641,7 @@ export class EnhancedMCPServerFixed {
       this.generatedPatterns.set(id, pattern);
       return `Pattern generated (initialize Strudel to use it): ${pattern.substring(0, 50)}...`;
     }
-    
+
     return await this.controller.writePattern(pattern);
   }
 
@@ -653,7 +653,7 @@ export class EnhancedMCPServerFixed {
         'generate_pattern', 'generate_drums', 'generate_bassline', 'generate_melody',
         'generate_chord_progression', 'generate_euclidean', 'generate_polyrhythm', 'generate_fill'
       ];
-      
+
       if (!generationTools.includes(name)) {
         return `Browser not initialized. Run 'init' first to use ${name}.`;
       }
@@ -692,7 +692,7 @@ export class EnhancedMCPServerFixed {
       case 'init':
         const initResult = await this.controller.initialize();
         this.isInitialized = true;
-        
+
         // Write any pending patterns
         if (this.generatedPatterns.size > 0) {
           const lastPattern = Array.from(this.generatedPatterns.values()).pop();
@@ -702,7 +702,7 @@ export class EnhancedMCPServerFixed {
           }
         }
         return initResult;
-      
+
       case 'write':
         InputValidator.validateStringLength(args.pattern, 'pattern', 10000, true);
 
@@ -753,20 +753,20 @@ export class EnhancedMCPServerFixed {
         const pattern = await this.getCurrentPatternSafe();
         const replaced = pattern.replace(args.search, args.replace);
         return await this.writePatternSafe(replaced);
-      
+
       case 'play':
         return await this.controller.play();
-      
+
       case 'pause':
       case 'stop':
         return await this.controller.stop();
-      
+
       case 'clear':
         return await this.writePatternSafe('');
-      
+
       case 'get_pattern':
         return await this.getCurrentPatternSafe();
-      
+
       // Pattern Generation - These can work without browser
       case 'generate_pattern':
         InputValidator.validateStringLength(args.style, 'style', 100, false);
@@ -790,7 +790,7 @@ export class EnhancedMCPServerFixed {
         }
 
         return `Generated ${args.style} pattern`;
-      
+
       case 'generate_drums':
         InputValidator.validateStringLength(args.style, 'style', 100, false);
         if (args.complexity !== undefined) {
@@ -801,7 +801,7 @@ export class EnhancedMCPServerFixed {
         const newDrumPattern = currentDrum ? currentDrum + '\n' + drums : drums;
         await this.writePatternSafe(newDrumPattern);
         return `Generated ${args.style} drums`;
-      
+
       case 'generate_bassline':
         InputValidator.validateRootNote(args.key);
         InputValidator.validateStringLength(args.style, 'style', 100, false);
@@ -810,7 +810,7 @@ export class EnhancedMCPServerFixed {
         const newBassPattern = currentBass ? currentBass + '\n' + bass : bass;
         await this.writePatternSafe(newBassPattern);
         return `Generated ${args.style} bassline in ${args.key}`;
-      
+
       case 'generate_melody':
         InputValidator.validateRootNote(args.root);
         InputValidator.validateScaleName(args.scale);
@@ -823,14 +823,14 @@ export class EnhancedMCPServerFixed {
         const newMelodyPattern = currentMelody ? currentMelody + '\n' + melody : melody;
         await this.writePatternSafe(newMelodyPattern);
         return `Generated melody in ${args.root} ${args.scale}`;
-      
+
       // Music Theory - These don't require browser
       case 'generate_scale':
         InputValidator.validateRootNote(args.root);
         InputValidator.validateScaleName(args.scale);
         const scaleNotes = this.theory.generateScale(args.root, args.scale);
         return `${args.root} ${args.scale} scale: ${scaleNotes.join(', ')}`;
-      
+
       case 'generate_chord_progression':
         InputValidator.validateRootNote(args.key);
         InputValidator.validateChordStyle(args.style);
@@ -840,7 +840,7 @@ export class EnhancedMCPServerFixed {
         const newChordPattern = currentChords ? currentChords + '\n' + chordPattern : chordPattern;
         await this.writePatternSafe(newChordPattern);
         return `Generated ${args.style} progression in ${args.key}: ${progression}`;
-      
+
       case 'generate_euclidean':
         InputValidator.validateEuclidean(args.hits, args.steps);
         if (args.sound) {
@@ -855,7 +855,7 @@ export class EnhancedMCPServerFixed {
         const newEucPattern = currentEuc ? currentEuc + '\n' + euclidean : euclidean;
         await this.writePatternSafe(newEucPattern);
         return `Generated Euclidean rhythm (${args.hits}/${args.steps})`;
-      
+
       case 'generate_polyrhythm':
         args.sounds.forEach((sound: string) => {
           InputValidator.validateStringLength(sound, 'sound', 100, false);
@@ -868,7 +868,7 @@ export class EnhancedMCPServerFixed {
         const newPolyPattern = currentPoly ? currentPoly + '\n' + poly : poly;
         await this.writePatternSafe(newPolyPattern);
         return `Generated polyrhythm`;
-      
+
       case 'generate_fill':
         InputValidator.validateStringLength(args.style, 'style', 100, false);
         if (args.bars !== undefined) {
@@ -879,7 +879,7 @@ export class EnhancedMCPServerFixed {
         const newFillPattern = currentFill ? currentFill + '\n' + fill : fill;
         await this.writePatternSafe(newFillPattern);
         return `Generated ${args.bars || 1} bar fill`;
-      
+
       // Pattern Manipulation - These require browser
       case 'transpose':
         // Semitones can be positive or negative, just validate it's a number
@@ -890,20 +890,20 @@ export class EnhancedMCPServerFixed {
         const transposed = this.transposePattern(toTranspose, args.semitones);
         await this.writePatternSafe(transposed);
         return `Transposed ${args.semitones} semitones`;
-      
+
       case 'reverse':
         const toReverse = await this.getCurrentPatternSafe();
         const reversed = toReverse + '.rev';
         await this.writePatternSafe(reversed);
         return 'Pattern reversed';
-      
+
       case 'stretch':
         InputValidator.validateGain(args.factor); // Positive number, use gain validator for simplicity
         const toStretch = await this.getCurrentPatternSafe();
         const stretched = toStretch + `.slow(${args.factor})`;
         await this.writePatternSafe(stretched);
         return `Stretched by factor of ${args.factor}`;
-      
+
       case 'humanize':
         if (args.amount !== undefined) {
           InputValidator.validateNormalizedValue(args.amount, 'amount');
@@ -912,13 +912,13 @@ export class EnhancedMCPServerFixed {
         const humanized = toHumanize + `.nudge(rand.range(-${args.amount || 0.01}, ${args.amount || 0.01}))`;
         await this.writePatternSafe(humanized);
         return 'Added human timing';
-      
+
       case 'generate_variation':
         const toVary = await this.getCurrentPatternSafe();
         const varied = this.generator.generateVariation(toVary, args.type || 'subtle');
         await this.writePatternSafe(varied);
         return `Added ${args.type || 'subtle'} variation`;
-      
+
       // Effects - These require browser
       case 'add_effect':
         InputValidator.validateStringLength(args.effect, 'effect', 100, false);
@@ -931,35 +931,35 @@ export class EnhancedMCPServerFixed {
           : currentEffect + `.${args.effect}()`;
         await this.writePatternSafe(withEffect);
         return `Added ${args.effect} effect`;
-      
+
       case 'add_swing':
         InputValidator.validateNormalizedValue(args.amount, 'amount');
         const currentSwing = await this.getCurrentPatternSafe();
         const withSwing = currentSwing + `.swing(${args.amount})`;
         await this.writePatternSafe(withSwing);
         return `Added swing: ${args.amount}`;
-      
+
       case 'set_tempo':
         InputValidator.validateBPM(args.bpm);
         const currentTempo = await this.getCurrentPatternSafe();
         const withTempo = `setcpm(${args.bpm})\n${currentTempo}`;
         await this.writePatternSafe(withTempo);
         return `Set tempo to ${args.bpm} BPM`;
-      
+
       // Audio Analysis - Requires browser
       case 'analyze':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
         }
         return await this.controller.analyzeAudio();
-      
+
       case 'analyze_spectrum':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
         }
         const spectrum = await this.controller.analyzeAudio();
         return spectrum.features || spectrum;
-      
+
       case 'analyze_rhythm':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
@@ -970,7 +970,7 @@ export class EnhancedMCPServerFixed {
           tempo: 'Analysis pending implementation',
           pattern: 'Rhythm pattern analysis'
         };
-      
+
       case 'detect_tempo':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
@@ -997,7 +997,7 @@ export class EnhancedMCPServerFixed {
             error: error.message || 'Tempo detection failed'
           };
         }
-      
+
       case 'detect_key':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
@@ -1053,7 +1053,7 @@ export class EnhancedMCPServerFixed {
           return `✅ Pattern valid - no runtime errors detected`;
         } else {
           return `❌ Pattern has runtime errors:\n${validation.errors.join('\n')}\n` +
-                 (validation.warnings.length > 0 ? `\nWarnings:\n${validation.warnings.join('\n')}` : '');
+            (validation.warnings.length > 0 ? `\nWarnings:\n${validation.warnings.join('\n')}` : '');
         }
 
       // Session Management
@@ -1065,7 +1065,7 @@ export class EnhancedMCPServerFixed {
         }
         await this.store.save(args.name, toSave, args.tags || []);
         return `Pattern saved as "${args.name}"`;
-      
+
       case 'load':
         InputValidator.validateStringLength(args.name, 'name', 255, false);
         const saved = await this.store.load(args.name);
@@ -1074,7 +1074,7 @@ export class EnhancedMCPServerFixed {
           return `Loaded pattern "${args.name}"`;
         }
         return `Pattern "${args.name}" not found`;
-      
+
       case 'list':
         if (args?.tag) {
           InputValidator.validateStringLength(args.tag, 'tag', 100, false);
@@ -1083,7 +1083,7 @@ export class EnhancedMCPServerFixed {
         return patterns.map(p =>
           `• ${p.name} [${p.tags.join(', ')}] - ${p.timestamp}`
         ).join('\n') || 'No patterns found';
-      
+
       case 'undo':
         if (!this.isInitialized) {
           return 'Browser not initialized. Run init first.';
@@ -1424,7 +1424,7 @@ export class EnhancedMCPServerFixed {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     this.logger.info('Enhanced Strudel MCP server v2.0.1 running (fixed)');
-    
+
     process.on('SIGINT', async () => {
       this.logger.info('Shutting down...');
       await this.controller.cleanup();
